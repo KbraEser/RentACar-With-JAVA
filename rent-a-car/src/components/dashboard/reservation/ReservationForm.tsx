@@ -169,7 +169,6 @@ const ReservationForm = () => {
                           carId: car.id,
                           startDate,
                           endDate,
-                          totalPrice,
                           location: deliveryLocation,
                         })
                       ).unwrap();

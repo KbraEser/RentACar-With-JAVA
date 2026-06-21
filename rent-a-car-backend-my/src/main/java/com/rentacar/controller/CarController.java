@@ -1,6 +1,7 @@
 package com.rentacar.controller;
 
-import com.rentacar.entity.Car;
+import com.rentacar.dto.CarResponse;
+import com.rentacar.dto.CarMapper;
 import com.rentacar.service.CarService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -19,22 +20,22 @@ public class CarController {
     }
 
     @GetMapping
-    public List<Car> findAll() {
-        return carService.findAll();
+    public List<CarResponse> findAll() {
+        return CarMapper.toResponseList(carService.findAll());
     }
 
     @GetMapping("/featured")
-    public List<Car> findFeatured() {
-        return carService.findFeatured();
+    public List<CarResponse> findFeatured() {
+        return CarMapper.toResponseList(carService.findFeatured());
     }
 
     @GetMapping("/{id}")
-    public Car findById(@PathVariable Long id) {
-        return carService.findById(id);
+    public CarResponse findById(@PathVariable Long id) {
+        return CarMapper.toResponse(carService.findById(id));
     }
 
     @GetMapping("/filter")
-    public List<Car> findFiltered(
+    public List<CarResponse> findFiltered(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) Double minPrice,
@@ -47,9 +48,9 @@ public class CarController {
             @RequestParam(required = false) Boolean isAvailable,
             @RequestParam(required = false) Boolean isFeatured
     ) {
-        return carService.findFiltered(
+        return CarMapper.toResponseList(carService.findFiltered(
                 startDate, endDate, minPrice, maxPrice, city, make,
                 fuelType, transmission, seats, isAvailable, isFeatured
-        );
+        ));
     }
 }

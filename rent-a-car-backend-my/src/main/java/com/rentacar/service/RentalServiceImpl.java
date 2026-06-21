@@ -1,5 +1,6 @@
 package com.rentacar.service;
 
+import com.rentacar.dto.ActiveRentalResponse;
 import com.rentacar.dto.CarSummaryDto;
 import com.rentacar.dto.RentalRequest;
 import com.rentacar.dto.RentalResponse;
@@ -7,10 +8,13 @@ import com.rentacar.entity.Car;
 import com.rentacar.entity.Rental;
 import com.rentacar.entity.User;
 import com.rentacar.enums.RentalStatus;
+import com.rentacar.exceptions.ApiException;
 import com.rentacar.repository.RentalRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -27,29 +31,36 @@ public class RentalServiceImpl  implements RentalService {
     @Override
     public RentalResponse create(RentalRequest request, User user) {
 
-            if(request.getEndDate().isBefore(request.getStartDate())){
-                throw new RuntimeException();
+            if (request.getEndDate().isBefore(request.getStartDate())) {
+                throw new ApiException("Bitiş tarihi başlangıç tarihinden önce olamaz", HttpStatus.BAD_REQUEST);
             }
 
-           Car car = carService.findById(request.getCarId());
+            Car car = carService.findById(request.getCarId());
 
-            if(!car.isAvailable()){
-                throw new RuntimeException();
+            if (!car.isAvailable()) {
+                throw new ApiException("Seçilen araç şu anda müsait değil", HttpStatus.BAD_REQUEST);
             }
 
             boolean hasConflict = rentalRepository.existsByCarIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                    request.getCarId(), RentalStatus.active,request.getEndDate(), request.getStartDate());
+                    request.getCarId(), RentalStatus.active, request.getEndDate(), request.getStartDate());
 
-            if(hasConflict){
-                throw new RuntimeException();
+            if (hasConflict) {
+                throw new ApiException("Seçilen tarihlerde araç zaten kiralanmış", HttpStatus.CONFLICT);
             }
+
+            long rentalDays = ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate());
+            if (rentalDays <= 0) {
+                throw new ApiException("Geçerli bir kiralama süresi seçin", HttpStatus.BAD_REQUEST);
+            }
+
+            BigDecimal totalPrice = car.getPricePerDay().multiply(BigDecimal.valueOf(rentalDays));
 
             Rental rental = new Rental();
             rental.setUser(user);
             rental.setCar(car);
             rental.setStartDate(request.getStartDate());
             rental.setEndDate(request.getEndDate());
-            rental.setTotalPrice(request.getTotalPrice());
+            rental.setTotalPrice(totalPrice);
             rental.setStatus(RentalStatus.active);
             rental.setCity(car.getCity());
             rental.setLocation(request.getLocation());
@@ -66,20 +77,23 @@ public class RentalServiceImpl  implements RentalService {
     }
 
     @Override
-    public List<Rental> findActiveByCarId(Long carId) {
-        return rentalRepository.findByCarIdAndStatus(carId,RentalStatus.active);
+    public List<ActiveRentalResponse> findActiveByCarId(Long carId) {
+        return rentalRepository.findByCarIdAndStatus(carId, RentalStatus.active).stream()
+                .map(rental -> new ActiveRentalResponse(rental.getStartDate(), rental.getEndDate()))
+                .toList();
     }
 
     @Override
     public RentalResponse cancel(Long rentalId, User user) {
-        Rental rental = rentalRepository.findById(rentalId).orElse(null);
+        Rental rental = rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new ApiException("Rezervasyon bulunamadı: " + rentalId, HttpStatus.NOT_FOUND));
 
-        if(!rental.getUser().getId().equals(user.getId())){
-            throw new RuntimeException();
+        if (!rental.getUser().getId().equals(user.getId())) {
+            throw new ApiException("Bu rezervasyonu iptal etme yetkiniz yok", HttpStatus.FORBIDDEN);
         }
 
-        if(rental.getStatus().equals(RentalStatus.cancelled)){
-            throw new RuntimeException();
+        if (rental.getStatus().equals(RentalStatus.cancelled)) {
+            throw new ApiException("Bu rezervasyon zaten iptal edilmiş", HttpStatus.BAD_REQUEST);
         }
 
         rental.setStatus(RentalStatus.cancelled);

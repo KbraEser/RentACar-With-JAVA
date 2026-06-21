@@ -1,4 +1,4 @@
-import type { CreateRentalRequest, Rental } from "../../types/rentals";
+import type { ActiveRental, CreateRentalRequest, Rental } from "../../types/rentals";
 import {
   cancelReservationService,
   createReservationService,
@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from "../../types/errors";
 
 type RentalsState = {
   rentals: Rental[];
-  carReservations: Rental[];
+  carReservations: ActiveRental[];
   loading: boolean;
   error: string | null;
 };

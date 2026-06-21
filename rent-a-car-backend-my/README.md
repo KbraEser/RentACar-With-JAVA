@@ -136,11 +136,11 @@ CORS, `http://localhost:5173` ve `http://localhost:3000` origin'lerine izin vere
 
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiJ9...",
-  "id": 1,
+  "jwtToken": "eyJhbGciOiJIUzI1NiJ9...",
+  "userId": 1,
   "email": "ahmet@example.com",
   "name": "Ahmet",
-  "password": "..."
+  "surname": "Yılmaz"
 }
 ```
 
@@ -195,10 +195,11 @@ GET /cars/filter?city=İstanbul&minPrice=800&maxPrice=1500&fuelType=benzin
   "carId": 1,
   "startDate": "2026-06-25",
   "endDate": "2026-06-28",
-  "totalPrice": 2550.00,
   "location": "İstanbul Havalimanı"
 }
 ```
+
+> Toplam fiyat sunucu tarafında `günlük fiyat × kiralama günü` formülüyle hesaplanır; istemciden gönderilmez.
 
 Rezervasyon durumları: `active`, `cancelled`.
 
@@ -236,7 +237,7 @@ src/main/java/com/rentacar/
 
 ## Frontend Entegrasyonu
 
-Frontend (`rent-a-car`) şu an Supabase üzerinden veri alıyor. Bu backend hazır durumda; tam entegrasyon için frontend servis katmanının `http://localhost:8080` adresindeki REST API'ye yönlendirilmesi yeterlidir.
+Frontend (`rent-a-car`) Spring Boot REST API ile entegre çalışır. `VITE_API_URL` ortam değişkeni backend adresini belirler (varsayılan: `http://localhost:8080`).
 
 Frontend'i çalıştırmak için:
 

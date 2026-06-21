@@ -55,7 +55,7 @@ npm install
 ```
 
 3. **Çevre değişkenlerini ayarlayın**
-   `.env.local` dosyası oluşturun:
+   `.env.development` veya `.env.local` dosyası oluşturun:
 
 ```env
 VITE_API_URL=http://localhost:8080

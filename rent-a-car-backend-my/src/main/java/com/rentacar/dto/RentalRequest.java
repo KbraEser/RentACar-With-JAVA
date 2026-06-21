@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
@@ -21,9 +20,6 @@ public class RentalRequest {
 
     @NotNull(message = "Bitiş tarihi zorunludur.")
     private LocalDate endDate;
-
-    @NotNull(message = "Toplam fiyat zorunludur.")
-    private BigDecimal totalPrice;
 
     @NotBlank(message = "Teslimat lokasyonu zorunludur.")
     private String location;

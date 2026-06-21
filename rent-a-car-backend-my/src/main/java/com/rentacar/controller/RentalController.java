@@ -1,8 +1,8 @@
 package com.rentacar.controller;
 
+import com.rentacar.dto.ActiveRentalResponse;
 import com.rentacar.dto.RentalRequest;
 import com.rentacar.dto.RentalResponse;
-import com.rentacar.entity.Rental;
 import com.rentacar.entity.User;
 import com.rentacar.service.RentalService;
 import com.rentacar.utils.SecurityUtils;
@@ -34,7 +34,7 @@ public class RentalController {
     }
 
     @GetMapping("/car/{carId}/active")
-    public List<Rental> findActiveByCarId(@PathVariable Long carId) {
+    public List<ActiveRentalResponse> findActiveByCarId(@PathVariable Long carId) {
         return rentalService.findActiveByCarId(carId);
     }
 

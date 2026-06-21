@@ -21,6 +21,10 @@ export type CreateRentalRequest = {
   carId: number;
   startDate: string;
   endDate: string;
-  totalPrice: number;
   location: string;
+};
+
+export type ActiveRental = {
+  startDate: string;
+  endDate: string;
 };

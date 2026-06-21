@@ -3,12 +3,13 @@ package com.rentacar.service;
 import com.rentacar.entity.Car;
 import com.rentacar.entity.Rental;
 import com.rentacar.enums.RentalStatus;
-import com.rentacar.enums.Transmission;
+import com.rentacar.exceptions.ApiException;
 import com.rentacar.repository.CarRepository;
 import com.rentacar.repository.RentalRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -43,7 +44,8 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public Car findById(Long id) {
-        return carRepository.findById(id).orElse(null);
+        return carRepository.findById(id)
+                .orElseThrow(() -> new ApiException("Araç bulunamadı: " + id, HttpStatus.NOT_FOUND));
     }
 
     @Override

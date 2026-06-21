@@ -78,4 +78,4 @@ API `http://localhost:8080` adresinde çalışır. PostgreSQL'de `rentacar` veri
 
 ## Genel Not
 
-Frontend şu an Supabase üzerinden veri alıyor. Backend hazır; tam entegrasyon için frontend servis katmanının REST API'ye yönlendirilmesi yeterli.
+Frontend, `rent-a-car/src/lib/apiClient.ts` üzerinden Spring Boot REST API'ye bağlanır. Geliştirme ortamında backend `http://localhost:8080`, frontend `http://localhost:5173` adresinde çalışır.

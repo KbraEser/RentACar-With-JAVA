@@ -1,4 +1,4 @@
-import type { CreateRentalRequest, Rental } from "../types/rentals";
+import type { ActiveRental, CreateRentalRequest, Rental } from "../types/rentals";
 import { apiClient } from "../lib/apiClient";
 import { getApiErrorMessage } from "../utils/errorHandler";
 
@@ -24,7 +24,7 @@ export const fetchRentalsService = async () => {
 
 export const fetchRentalsByStatusDate = async (carId: string) => {
   try {
-    const { data } = await apiClient.get<Rental[]>(`/rentals/car/${carId}/active`);
+    const { data } = await apiClient.get<ActiveRental[]>(`/rentals/car/${carId}/active`);
     return data;
   } catch (error) {
     throw new Error(
