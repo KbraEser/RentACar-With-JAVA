@@ -1,18 +1,15 @@
 # Rent A Car
 
-Araç kiralama uygulaması. Proje iki ana parçadan oluşur: React tabanlı frontend ve Java Spring Boot tabanlı backend.
+Araç kiralama uygulamasının React tabanlı frontend projesi.
 
 ```
 RentACar/
-├── rent-a-car/          → Frontend (React + TypeScript)
-└── rent-a-car-backend/  → Backend (Java + Spring Boot)
+└── rent-a-car/  → Frontend (React + TypeScript)
 ```
 
 ---
 
 ## Kullanılan Teknolojiler
-
-### Frontend (`rent-a-car`)
 
 | Kategori | Teknoloji |
 |----------|-----------|
@@ -27,20 +24,6 @@ RentACar/
 | UI | React Icons, React Toastify |
 | Backend (mevcut) | Supabase |
 | Araçlar | ESLint, TypeScript ESLint |
-
-### Backend (`rent-a-car-backend`)
-
-| Kategori | Teknoloji |
-|----------|-----------|
-| Dil | Java 17 |
-| Framework | Spring Boot 3.4 |
-| API | Spring Web (REST) |
-| Güvenlik | Spring Security, JWT (jjwt) |
-| Veritabanı | Spring Data JPA, Hibernate |
-| DB | PostgreSQL |
-| Validasyon | Jakarta Validation |
-| Yardımcı | Lombok, Maven |
-| Test | Spring Boot Test, Spring Security Test |
 
 ---
 
@@ -67,27 +50,6 @@ Uygulama `http://localhost:5173` adresinde açılır.
 
 ---
 
-## rent-a-car-backend (Backend)
-
-Frontend'in ihtiyaç duyduğu REST API'yi sunan Java backend. Kimlik doğrulama (JWT), araç yönetimi ve rezervasyon işlemlerini karşılar.
-
-**Temel özellikler:**
-- Kayıt ve giriş (`/auth`)
-- Araç listeleme ve filtreleme (`/cars`)
-- Rezervasyon CRUD işlemleri (`/rentals`)
-
-**Çalıştırmak için:**
-```bash
-cd rent-a-car-backend
-mvn spring-boot:run
-```
-
-API `http://localhost:8080` adresinde çalışır. PostgreSQL'de `rentacar` veritabanının oluşturulmuş olması gerekir.
-
-> Detaylı bilgi için: [rent-a-car-backend/README.md](rent-a-car-backend/README.md)
-
----
-
 ## Genel Not
 
-Frontend şu an Supabase üzerinden veri alıyor. Backend hazır durumda; iki tarafın tam entegrasyonu için frontend servis katmanının REST API'ye yönlendirilmesi yeterli.
+Frontend şu an Supabase üzerinden veri alıyor. Java Spring Boot backend ayrı bir projede geliştirilmektedir.
