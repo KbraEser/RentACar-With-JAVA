@@ -23,6 +23,46 @@ const isAuthEndpoint = (url?: string): boolean => {
   );
 };
 
+const isMutatingMethod = (method?: string): boolean => {
+  if (!method) return false;
+  const normalized = method.toLowerCase();
+  return (
+    normalized === "post" ||
+    normalized === "put" ||
+    normalized === "patch" ||
+    normalized === "delete"
+  );
+};
+
+const isCsrfExemptEndpoint = (url?: string): boolean => {
+  if (!url) return false;
+  return (
+    url.includes("/auth/login") ||
+    url.includes("/auth/register") ||
+    url.includes("/auth/refresh") ||
+    url.includes("/auth/logout")
+  );
+};
+
+let csrfBootstrapPromise: Promise<void> | null = null;
+
+const ensureCsrfToken = (): Promise<void> => {
+  if (getCsrfToken()) {
+    return Promise.resolve();
+  }
+
+  if (!csrfBootstrapPromise) {
+    csrfBootstrapPromise = apiClient
+      .get("/cars/featured")
+      .then(() => undefined)
+      .finally(() => {
+        csrfBootstrapPromise = null;
+      });
+  }
+
+  return csrfBootstrapPromise;
+};
+
 export const apiClient = axios.create({
   baseURL: API_URL,
   withCredentials: true,
@@ -31,11 +71,16 @@ export const apiClient = axios.create({
   },
 });
 
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  if (isMutatingMethod(config.method) && !isCsrfExemptEndpoint(config.url)) {
+    await ensureCsrfToken();
+  }
+
   const csrfToken = getCsrfToken();
   if (csrfToken) {
     config.headers[CSRF_HEADER_NAME] = csrfToken;
   }
+
   return config;
 });
 
