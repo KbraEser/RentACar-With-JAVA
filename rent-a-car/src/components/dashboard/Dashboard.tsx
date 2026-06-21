@@ -20,7 +20,7 @@ const Dashboard = () => {
       {/* Header */}
       <div className="rounded-lg shadow-lg p-6 bg-white">
         <h1 className="text-2xl font-bold mb-2 text-gray-800">
-          Merhaba, {user?.user_metadata?.name || "Kullanıcı"} 👋
+          Merhaba, {user?.name || "Kullanıcı"} 👋
         </h1>
         <p className="text-gray-600">
           Rezervasyonlarını yönetebilir, yeni araç kiralayabilirsin.

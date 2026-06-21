@@ -1,16 +1,16 @@
 export type Car = {
-  id: string;
+  id: number;
   make: string;
   model: string;
   year: number;
-  price_per_day: number;
+  pricePerDay: number;
   description: string;
-  fuel_type: string;
+  fuelType: string;
   seats: number;
-  is_available: boolean;
-  created_at: string;
-  updated_at: string;
+  available: boolean;
   transmission: string;
-  is_featured: boolean;
+  featured: boolean;
   city: string;
+  createdAt: string;
+  updatedAt: string;
 };

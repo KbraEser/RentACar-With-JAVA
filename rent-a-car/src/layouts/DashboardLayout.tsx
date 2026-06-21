@@ -66,7 +66,7 @@ const DashboardLayout = () => {
             </ul>
             <div className="flex items-center gap-4">
               <span className="navbar-link hidden lg:block">
-                Hoş geldin, {user?.user_metadata?.name}
+                Hoş geldin, {user?.name}
               </span>
               <button
                 onClick={() => dispatch(signOut())}
@@ -97,7 +97,7 @@ const DashboardLayout = () => {
               <div className="pt-4 border-t border-gray-700">
                 <div className="flex items-center justify-between">
                   <span className="navbar-link">
-                    Hoş geldin, {user?.user_metadata?.name}
+                    Hoş geldin, {user?.name}
                   </span>
                   <button
                     onClick={() => dispatch(signOut())}

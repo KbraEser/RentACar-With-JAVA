@@ -97,7 +97,7 @@ const CarDetailsModal = () => {
                   <div>
                     <p className="text-sm text-gray-500">Yakıt Türü</p>
                     <p className="font-semibold text-gray-800">
-                      {car.fuel_type}
+                      {car.fuelType}
                     </p>
                   </div>
                 </div>
@@ -144,7 +144,7 @@ const CarDetailsModal = () => {
             <div className="bg-white rounded-lg shadow-lg p-6 h-fit">
               <div className="text-center mb-6">
                 <div className="text-4xl font-bold text-orange-600 mb-2">
-                  {car.price_per_day}₺
+                  {car.pricePerDay}₺
                 </div>
                 <div className="text-gray-500">günlük kiralama</div>
               </div>
@@ -154,12 +154,12 @@ const CarDetailsModal = () => {
                   <span className="text-gray-600">Durum</span>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      car.is_available
+                      car.available
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {car.is_available ? "Müsait" : "Dolu"}
+                    {car.available ? "Müsait" : "Dolu"}
                   </span>
                 </div>
 
@@ -167,12 +167,12 @@ const CarDetailsModal = () => {
                   <span className="text-gray-600">Öne Çıkan</span>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      car.is_featured
+                      car.featured
                         ? "bg-blue-100 text-blue-800"
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {car.is_featured ? "Evet" : "Hayır"}
+                    {car.featured ? "Evet" : "Hayır"}
                   </span>
                 </div>
 
@@ -202,15 +202,15 @@ const CarDetailsModal = () => {
                 <button
                   onClick={handleReservationClick}
                   className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-                    car.is_available
+                    car.available
                       ? "primary-button"
                       : "bg-gray-400 text-white cursor-not-allowed"
                   }`}
-                  disabled={!car.is_available}
+                  disabled={!car.available}
                 >
                   {!user
                     ? "Giriş Yap ve Rezervasyon Yap"
-                    : car.is_available
+                    : car.available
                     ? "Rezervasyon Yap"
                     : "Müsait Değil"}
                 </button>

@@ -39,8 +39,8 @@ const DatePicker = ({ register, watch, setValue, carId }: DatePickerProps) => {
 
   const reservations = useAppSelector((state: RootState) =>
     state.rentals.carReservations.map((rental) => ({
-      start_date: rental.start_date,
-      end_date: rental.end_date,
+      start_date: rental.startDate,
+      end_date: rental.endDate,
     }))
   );
 

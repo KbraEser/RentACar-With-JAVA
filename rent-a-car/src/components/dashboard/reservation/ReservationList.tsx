@@ -18,7 +18,7 @@ const ReservationList = () => {
 
   useEffect(() => {
     if (user) {
-      dispatch(fetchRentals(user.id));
+      dispatch(fetchRentals());
     }
   }, [dispatch, user]);
 
@@ -94,26 +94,26 @@ const ReservationList = () => {
                 return (
                   <tr
                     className="border-b"
-                    key={reservation.id || reservation.car_id}
+                    key={reservation.id || reservation.carId}
                   >
                     <td className=" p-2">
                       {reservation.cars
                         ? `${reservation.cars.make} ${reservation.cars.model}`
-                        : `Araç ID: ${reservation.car_id}`}
+                        : `Araç ID: ${reservation.carId}`}
                     </td>
                     <td className=" p-2">
-                      {new Date(reservation.start_date).toLocaleDateString(
+                      {new Date(reservation.startDate).toLocaleDateString(
                         "tr-TR"
                       )}
                     </td>
                     <td className=" p-2">
-                      {new Date(reservation.end_date).toLocaleDateString(
+                      {new Date(reservation.endDate).toLocaleDateString(
                         "tr-TR"
                       )}
                     </td>
                     <td className=" p-2 justify-center ">
                       {" "}
-                      {reservation.total_price} ₺
+                      {reservation.totalPrice} ₺
                     </td>
 
                     <td className=" p-2">
@@ -121,7 +121,9 @@ const ReservationList = () => {
                     </td>
                     <td className=" p-2">
                       <button
-                        onClick={() => handleCancelClick(reservation.id || "")}
+                        onClick={() =>
+                          handleCancelClick(String(reservation.id ?? ""))
+                        }
                         disabled={reservation.status === "cancelled"}
                         className={`primary-button ${
                           reservation.status === "cancelled"

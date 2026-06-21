@@ -1,11 +1,10 @@
+import { toast } from "react-toastify";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { getCarImage } from "../../utils/carImages";
 import type { Car } from "../../../types/car";
 import { DELIVERY_LOCATIONS, TIME_CONSTANTS } from "../../../constants";
 
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../../store/store";
 import { useForm } from "react-hook-form";
 import { validateAndResetEndDate } from "../../utils/dataUtils";
 import { createReservation } from "../../../store/slices/rentalsSlice";
@@ -22,7 +21,6 @@ export interface ReservationFormData {
 
 const ReservationForm = () => {
   const carData = useLoaderData();
-  const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -54,12 +52,12 @@ const ReservationForm = () => {
 
     if (endDate && startDate && endDate >= startDate) {
       const totalPrice =
-        car.price_per_day *
+        car.pricePerDay *
         ((new Date(endDate).getTime() - new Date(startDate).getTime()) /
           TIME_CONSTANTS.MILLISECONDS_IN_DAY);
       setValue("totalPrice", totalPrice);
     }
-  }, [startDate, endDate, car?.price_per_day, setValue, car]);
+  }, [startDate, endDate, car?.pricePerDay, setValue, car]);
 
   // Car veya city null ise early return
   if (!car) {
@@ -92,7 +90,7 @@ const ReservationForm = () => {
               <div className="reservation-detail-row">
                 <span className="reservation-detail-label">Yakıt Türü:</span>
                 <span className="reservation-detail-value">
-                  {car.fuel_type}
+                  {car.fuelType}
                 </span>
               </div>
               <div className="reservation-detail-row">
@@ -124,7 +122,7 @@ const ReservationForm = () => {
                 <p className="reservation-price-label">Toplam Fiyat</p>
                 <p className="reservation-price-value">{totalPrice}₺</p>
                 <p className="reservation-price-per-day">
-                  {car.price_per_day}₺/gün
+                  {car.pricePerDay}₺/gün
                 </p>
               </div>
             </div>
@@ -137,7 +135,7 @@ const ReservationForm = () => {
                   register={register}
                   watch={watch}
                   setValue={setValue}
-                  carId={car.id}
+                  carId={String(car.id)}
                 />
 
                 <div>
@@ -158,34 +156,34 @@ const ReservationForm = () => {
                 <button
                   type="button"
                   className="w-full bg-orange-600 text-white py-3 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium"
-                  disabled={!startDate || !endDate || !totalPrice}
-                  onClick={() => {
-                    dispatch(
-                      createReservation({
-                        reservation: {
-                          user_id: user?.id || "",
-                          car_id: car.id,
-                          start_date: startDate,
-                          end_date: endDate,
-                          total_price: totalPrice,
-                          status: "active",
+                  disabled={!startDate || !endDate || !totalPrice || !deliveryLocation}
+                  onClick={async () => {
+                    if (!deliveryLocation) {
+                      toast.error("Lütfen teslim yeri seçin.");
+                      return;
+                    }
+
+                    try {
+                      await dispatch(
+                        createReservation({
+                          carId: car.id,
+                          startDate,
+                          endDate,
+                          totalPrice,
+                          location: deliveryLocation,
+                        })
+                      ).unwrap();
+
+                      toast.success("Rezervasyon başarıyla oluşturuldu.");
+                      navigate("/dashboard/reservationSuccess", {
+                        state: {
                           city: car.city,
                           location: deliveryLocation,
                         },
-                        car: car,
-                      })
-                    )
-                      .then(() => {
-                        navigate("/dashboard/reservationSuccess", {
-                          state: {
-                            city: car.city,
-                            location: deliveryLocation,
-                          },
-                        });
-                      })
-                      .catch((error) => {
-                        handleAndShowError(error, "ReservationForm.onClick");
                       });
+                    } catch (error) {
+                      handleAndShowError(error, "ReservationForm.onClick");
+                    }
                   }}
                 >
                   Rezervasyonu Tamamla

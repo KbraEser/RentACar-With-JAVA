@@ -1,6 +1,6 @@
 # 🚗 Rent A Car - Araç Kiralama Sistemi
 
-Modern ve kullanıcı dostu araç kiralama web uygulaması. React 19, TypeScript ve Supabase ile geliştirilmiştir.
+Modern ve kullanıcı dostu araç kiralama web uygulaması. React 19, TypeScript ve Spring Boot REST API ile geliştirilmiştir.
 
 ## ✨ Özellikler
 
@@ -25,11 +25,11 @@ Modern ve kullanıcı dostu araç kiralama web uygulaması. React 19, TypeScript
 - **Redux Toolkit**: Modern Redux kullanımı
 - **React Redux**: React-Redux entegrasyonu
 
-### Backend & Database
+### Backend
 
-- **Supabase**: Backend-as-a-Service
-- **PostgreSQL**: Güçlü ilişkisel veritabanı
-- **Row Level Security**: Veri güvenliği
+- **Spring Boot**: REST API
+- **PostgreSQL**: İlişkisel veritabanı
+- **JWT**: Kimlik doğrulama
 
 ### UI/UX Libraries
 
@@ -58,8 +58,7 @@ npm install
    `.env.local` dosyası oluşturun:
 
 ```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_API_URL=http://localhost:8080
 ```
 
 4. **Uygulamayı başlatın**
@@ -97,7 +96,7 @@ npm run dev
 
 ## 🗄️ Veritabanı
 
-Supabase PostgreSQL veritabanı kullanılmaktadır:
+PostgreSQL veritabanı Spring Boot backend tarafından yönetilir:
 
 ### Tablolar
 
@@ -107,9 +106,9 @@ Supabase PostgreSQL veritabanı kullanılmaktadır:
 
 ### Güvenlik
 
-- **Row Level Security (RLS)**: Veri seviyesinde güvenlik
+- **Spring Security**: Endpoint koruması
 - **JWT Tokens**: Güvenli kimlik doğrulama
-- **API Keys**: Güvenli API erişimi
+- **JPA/Hibernate**: Parametreli sorgular ile SQL injection koruması
 
 ## 🔄 Geliştirme Durumu
 
@@ -179,5 +178,5 @@ npm run preview
 - **Input Validation**: Form doğrulama
 - **Error Handling**: Güvenli hata yönetimi
 - **Protected Routes**: Yetkilendirme kontrolü
-- **SQL Injection**: Supabase ile otomatik koruma
+- **SQL Injection**: JPA parametreli sorgular ile koruma
 - **XSS Protection**: React'in built-in koruması

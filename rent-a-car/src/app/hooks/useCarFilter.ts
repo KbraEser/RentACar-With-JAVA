@@ -41,7 +41,7 @@ export function useCarFilter({ initialCars }: UseCarFilterProps) {
 
       // Yakıt türü filtresi
       if (formData.fuel_type && formData.fuel_type !== "") {
-        filters.fuel_type = formData.fuel_type;
+        filters.fuelType = formData.fuel_type;
       }
 
       // Vites türü filtresi

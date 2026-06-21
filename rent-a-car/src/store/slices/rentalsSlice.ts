@@ -1,4 +1,4 @@
-import type { Rentals } from "../../types/rentals";
+import type { CreateRentalRequest, Rental } from "../../types/rentals";
 import {
   cancelReservationService,
   createReservationService,
@@ -7,11 +7,10 @@ import {
 } from "../../services/reservationService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ERROR_MESSAGES } from "../../types/errors";
-import type { Car } from "../../types/car";
 
 type RentalsState = {
-  rentals: Rentals[];
-  carReservations: Rentals[];
+  rentals: Rental[];
+  carReservations: Rental[];
   loading: boolean;
   error: string | null;
 };
@@ -25,22 +24,19 @@ const initialState: RentalsState = {
 
 export const createReservation = createAsyncThunk(
   "rentals/createReservation",
-  async ({ reservation, car }: { reservation: Rentals; car: Car }) => {
-    return await createReservationService(reservation, car);
+  async (request: CreateRentalRequest) => {
+    return await createReservationService(request);
   }
 );
 
-export const fetchRentals = createAsyncThunk(
-  "rentals/fetchRentals",
-  async (user_id: string) => {
-    return await fetchRentalsService(user_id);
-  }
-);
+export const fetchRentals = createAsyncThunk("rentals/fetchRentals", async () => {
+  return await fetchRentalsService();
+});
 
 export const fetchRentalsByStatusDate = createAsyncThunk(
   "rentals/fetchRentalsByStatusDate",
-  async (car_id: string) => {
-    return await fetchRentalsByStatusDateService(car_id);
+  async (carId: string) => {
+    return await fetchRentalsByStatusDateService(carId);
   }
 );
 
@@ -63,7 +59,7 @@ const rentalsSlice = createSlice({
       })
       .addCase(createReservation.fulfilled, (state, action) => {
         state.loading = false;
-        state.rentals.push(action.payload[0]);
+        state.rentals.push(action.payload);
       })
       .addCase(createReservation.rejected, (state, action) => {
         state.loading = false;
@@ -89,11 +85,9 @@ const rentalsSlice = createSlice({
       })
       .addCase(cancelReservation.fulfilled, (state, action) => {
         state.loading = false;
-        const cancelledId = action.meta.arg;
-
-        // Rezervasyonu bul ve status'unu güncelle
+        const cancelledId = String(action.meta.arg);
         const rentalIndex = state.rentals.findIndex(
-          (rental) => rental.id === cancelledId
+          (rental) => String(rental.id) === cancelledId
         );
 
         if (rentalIndex !== -1) {

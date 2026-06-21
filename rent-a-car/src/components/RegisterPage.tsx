@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { supabase } from "../lib/supabaseClient";
 import type { RootState } from "../store/store";
 import { handleAndShowError } from "../utils/errorHandler";
 
@@ -33,38 +32,10 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-  const isUserExists = async (email: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", email);
-
-      if (error) {
-        handleAndShowError(error, "RegisterPage.isUserExists");
-        return false;
-      }
-
-      return data && data.length > 0;
-    } catch (error) {
-      handleAndShowError(error, "RegisterPage.isUserExists");
-      return false;
-    }
-  };
-
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // Şifre doğrulama kontrolü
       if (data.password !== data.passwordConfirm) {
         toast.error("Şifreler eşleşmiyor!");
-        return;
-      }
-
-      const userExists = await isUserExists(data.email);
-      if (userExists) {
-        toast.error(
-          "Bu email adresi ile zaten kayıtlı bir kullanıcı bulunmaktadır."
-        );
         return;
       }
 
@@ -76,7 +47,7 @@ const RegisterPage = () => {
           password: data.password,
           passwordConfirm: data.passwordConfirm,
         })
-      );
+      ).unwrap();
 
       toast.success("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz.");
       reset();

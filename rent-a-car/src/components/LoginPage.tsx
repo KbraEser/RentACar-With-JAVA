@@ -21,7 +21,9 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await dispatch(signIn({ email: data.email, password: data.password }));
+      await dispatch(
+        signIn({ email: data.email, password: data.password })
+      ).unwrap();
       toast.success("Giriş başarılı! Hoş geldiniz.");
       navigate("/dashboard");
     } catch (error) {

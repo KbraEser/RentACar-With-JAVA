@@ -1,16 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { User, Session } from "@supabase/supabase-js";
 import {
   signUp as signUpService,
   signIn as signInService,
   signOut as signOutService,
   getSession as getSessionService,
 } from "../../services/authService";
+import type { AppUser, AuthSession } from "../../types/auth";
 import { ERROR_MESSAGES } from "../../types/errors";
 
 type AuthState = {
-  user: User | null;
-  session: Session | null;
+  user: AppUser | null;
+  session: AuthSession | null;
   loading: boolean;
   error: string | null;
 };

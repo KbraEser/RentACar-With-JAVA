@@ -1,6 +1,13 @@
-import { supabase } from "../lib/supabaseClient";
-import type { User, Session } from "@supabase/supabase-js";
-import { handleError, validateInput } from "../utils/errorHandler";
+import {
+  apiClient,
+  clearToken,
+  getToken,
+  setToken,
+} from "../lib/apiClient";
+import type { AppUser, AuthResponse, AuthSession } from "../types/auth";
+import { getApiErrorMessage, validateInput } from "../utils/errorHandler";
+
+const USER_KEY = "auth_user";
 
 export interface SignUpData {
   email: string;
@@ -15,101 +22,99 @@ export interface SignInData {
   password: string;
 }
 
-export interface AuthResponse {
-  user: User | null;
-  session: Session | null;
+interface LoginResponse {
+  jwtToken: string;
+  userId: number;
+  email: string;
+  name: string;
+  surname: string;
 }
 
-// Kullanıcı kayıt işlemi
+const saveAuth = (token: string, user: AppUser): AuthResponse => {
+  setToken(token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+
+  const session: AuthSession = { access_token: token, user };
+  return { user, session };
+};
+
+const getStoredUser = (): AppUser | null => {
+  const userJson = localStorage.getItem(USER_KEY);
+  if (!userJson) return null;
+
+  try {
+    return JSON.parse(userJson) as AppUser;
+  } catch {
+    return null;
+  }
+};
+
 export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
-  // Input validation
   validateInput(data.email, "Email");
   validateInput(data.password, "Şifre");
   validateInput(data.name, "Ad");
   validateInput(data.surname, "Soyad");
+  validateInput(data.passwordConfirm, "Şifre tekrarı");
 
-  const { email, password, name, surname } = data;
-
-  // 1. Supabase Auth'a kaydet
-  const { data: authData, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
-        surname,
-      },
-    },
-  });
-
-  if (error) {
-    throw new Error(handleError(error, "AuthService.signUp"));
-  }
-
-  // 2. Kullanıcı onaylandıktan sonra users tablosuna ekle
-  if (authData.user) {
-    const { error: insertError } = await supabase.from("users").insert({
-      id: authData.user.id,
-      name,
-      surname,
-      email,
+  try {
+    await apiClient.post("/auth/register", {
+      name: data.name,
+      surname: data.surname,
+      email: data.email,
+      password: data.password,
+      passwordConfirm: data.passwordConfirm,
     });
-
-    if (insertError) {
-      throw new Error(
-        handleError(insertError, "AuthService.signUp - User Insert")
-      );
-    }
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "AuthService.signUp"));
   }
 
-  return authData;
+  // Backend kayıtta token dönmüyor; kullanıcı login sayfasına gider
+  return { user: null, session: null };
 };
 
-// Kullanıcı giriş işlemi
 export const signIn = async (data: SignInData): Promise<AuthResponse> => {
-  // Input validation
   validateInput(data.email, "Email");
   validateInput(data.password, "Şifre");
 
-  const { email, password } = data;
+  try {
+    const { data: loginData } = await apiClient.post<LoginResponse>(
+      "/auth/login",
+      {
+        email: data.email,
+        password: data.password,
+      }
+    );
 
-  const { data: authData, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+    const user: AppUser = {
+      id: loginData.userId,
+      email: loginData.email,
+      name: loginData.name,
+      surname: loginData.surname,
+    };
 
-  if (error) {
-    throw new Error(handleError(error, "AuthService.signIn"));
+    return saveAuth(loginData.jwtToken, user);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "AuthService.signIn"));
   }
-
-  return authData;
 };
 
-// Kullanıcı çıkış işlemi
 export const signOut = async (): Promise<void> => {
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    throw new Error(handleError(error, "AuthService.signOut"));
-  }
+  clearToken();
+  localStorage.removeItem(USER_KEY);
 };
 
-// Mevcut oturumu getir
-export const getSession = async (): Promise<{ session: Session | null }> => {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) {
-    throw new Error(handleError(error, "AuthService.getSession"));
+export const getSession = async (): Promise<{ session: AuthSession | null }> => {
+  const token = getToken();
+  const user = getStoredUser();
+
+  if (!token || !user) {
+    return { session: null };
   }
-  return data;
+
+  return { session: { access_token: token, user } };
 };
 
-// Kullanıcı bilgilerini getir
-export const getUser = async (): Promise<User | null> => {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error) {
-    throw new Error(handleError(error, "AuthService.getUser"));
-  }
-  return user;
+export const getUser = async (): Promise<AppUser | null> => {
+  const { session } = await getSession();
+  return session?.user ?? null;
 };

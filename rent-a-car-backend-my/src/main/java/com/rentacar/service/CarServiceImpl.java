@@ -7,7 +7,6 @@ import com.rentacar.enums.Transmission;
 import com.rentacar.repository.CarRepository;
 import com.rentacar.repository.RentalRepository;
 import jakarta.persistence.criteria.Predicate;
-import kotlin._Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -119,7 +118,7 @@ public class CarServiceImpl implements CarService {
         }
 
         List<Long> carIds= cars.stream().map(Car::getId).toList();
-        List<Rental> activeRentals = rentalRepository.findByCarIdInAndStatus(carIds, RentalStatus.ACTIVE);
+        List<Rental> activeRentals = rentalRepository.findByCarIdInAndStatus(carIds, RentalStatus.active);
 
         Set<Long> unavailableCardIds = activeRentals.stream()
                 .filter(rental -> datesOverlap(rental.getStartDate(),rental.getEndDate(),startDate,endDate))

@@ -52,11 +52,6 @@ public class User implements UserDetails {
     }
 
     @Override
-    public @Nullable String getPassword() {
-        return "";
-    }
-
-    @Override
     public @NonNull String getUsername() {
         return email;
     }

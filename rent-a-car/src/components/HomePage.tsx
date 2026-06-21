@@ -120,9 +120,9 @@ const HomePage = () => {
                     {car.make} {car.model}
                   </h3>
                   <p className="car-year">Yıl: {car.year}</p>
-                  <p className="car-price">₺{car.price_per_day}/gün</p>
+                  <p className="car-price">₺{car.pricePerDay}/gün</p>
                   <p className="car-details">
-                    {car.fuel_type} • {car.seats} kişi • {car.transmission}
+                    {car.fuelType} • {car.seats} kişi • {car.transmission}
                   </p>
                 </div>
               </div>

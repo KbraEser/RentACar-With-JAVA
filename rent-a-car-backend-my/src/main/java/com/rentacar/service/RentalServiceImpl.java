@@ -38,7 +38,7 @@ public class RentalServiceImpl  implements RentalService {
             }
 
             boolean hasConflict = rentalRepository.existsByCarIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                    request.getCarId(), RentalStatus.ACTIVE,request.getEndDate(), request.getStartDate());
+                    request.getCarId(), RentalStatus.active,request.getEndDate(), request.getStartDate());
 
             if(hasConflict){
                 throw new RuntimeException();
@@ -50,8 +50,9 @@ public class RentalServiceImpl  implements RentalService {
             rental.setStartDate(request.getStartDate());
             rental.setEndDate(request.getEndDate());
             rental.setTotalPrice(request.getTotalPrice());
-            rental.setStatus(RentalStatus.ACTIVE);
+            rental.setStatus(RentalStatus.active);
             rental.setCity(car.getCity());
+            rental.setLocation(request.getLocation());
 
             return toResponse(rentalRepository.save(rental));
     }
@@ -66,7 +67,7 @@ public class RentalServiceImpl  implements RentalService {
 
     @Override
     public List<Rental> findActiveByCarId(Long carId) {
-        return rentalRepository.findByCarIdAndStatus(carId,RentalStatus.ACTIVE);
+        return rentalRepository.findByCarIdAndStatus(carId,RentalStatus.active);
     }
 
     @Override
@@ -77,11 +78,11 @@ public class RentalServiceImpl  implements RentalService {
             throw new RuntimeException();
         }
 
-        if(rental.getStatus().equals(RentalStatus.CANCELLED)){
+        if(rental.getStatus().equals(RentalStatus.cancelled)){
             throw new RuntimeException();
         }
 
-        rental.setStatus(RentalStatus.CANCELLED);
+        rental.setStatus(RentalStatus.cancelled);
         return toResponse(rentalRepository.save(rental));
     }
 
