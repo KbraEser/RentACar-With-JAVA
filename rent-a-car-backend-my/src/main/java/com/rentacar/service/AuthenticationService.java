@@ -7,6 +7,7 @@ import com.rentacar.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthenticationService {
@@ -18,6 +19,7 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public User register(RegisterRequest registerRequest) {
         if(!registerRequest.password().equals(registerRequest.passwordConfirm())){
             throw new ApiException("Şifreler eşleşmiyor", HttpStatus.BAD_REQUEST);

@@ -12,13 +12,15 @@ import com.rentacar.exceptions.ApiException;
 import com.rentacar.repository.RentalRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
-public class RentalServiceImpl  implements RentalService {
+@Transactional(readOnly = true)
+public class RentalServiceImpl implements RentalService {
 
     private RentalRepository rentalRepository;
     private CarService carService;
@@ -29,6 +31,7 @@ public class RentalServiceImpl  implements RentalService {
     }
 
     @Override
+    @Transactional
     public RentalResponse create(RentalRequest request, User user) {
 
             if (request.getEndDate().isBefore(request.getStartDate())) {
@@ -84,6 +87,7 @@ public class RentalServiceImpl  implements RentalService {
     }
 
     @Override
+    @Transactional
     public RentalResponse cancel(Long rentalId, User user) {
         Rental rental = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new ApiException("Rezervasyon bulunamadı: " + rentalId, HttpStatus.NOT_FOUND));
