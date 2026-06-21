@@ -37,20 +37,23 @@ Bu proje, `RentACar` monoreposunun backend bileşenidir. Frontend: [`rent-a-car`
 createdb rentacar
 ```
 
-### 2. Bağlantı ayarlarını yapılandırın
+### 2. Ortam değişkenlerini yapılandırın
 
-`src/main/resources/application.properties` dosyasını kendi ortamınıza göre düzenleyin:
+Proje kökünde `.env.example` dosyasını `.env` olarak kopyalayın ve değerleri doldurun:
 
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/rentacar
-spring.datasource.username=<kullanici_adi>
-spring.datasource.password=<sifre>
-
-jwt.secret=<gizli-anahtar>
-jwt.expiration-ms=36000000
+```bash
+cp .env.example .env
 ```
 
-> Üretim ortamında `jwt.secret` değerini mutlaka güçlü ve benzersiz bir anahtarla değiştirin.
+```env
+DB_URL=jdbc:postgresql://localhost:5432/rentacar
+DB_USERNAME=<kullanici_adi>
+DB_PASSWORD=<sifre>
+JWT_SECRET=<openssl rand -base64 32 ile üretin>
+SPRING_PROFILES_ACTIVE=dev
+```
+
+> `.env` repoya commit edilmez. Üretimde `SPRING_PROFILES_ACTIVE=prod` kullanın; `prod` profili `ddl-auto=validate` ile şemayı otomatik değiştirmez.
 
 ### 3. Uygulamayı çalıştırın
 
@@ -75,7 +78,7 @@ mvnw.cmd spring-boot:run
 
 API varsayılan olarak `http://localhost:8080` adresinde çalışır.
 
-İlk başlatmada Hibernate tabloları otomatik oluşturulur (`spring.jpa.hibernate.ddl-auto=update`) ve veritabanı boşsa örnek araç verileri yüklenir.
+Geliştirme profilinde (`dev`) Hibernate tabloları otomatik oluşturulur (`ddl-auto=update`) ve veritabanı boşsa örnek araç verileri yüklenir.
 
 ---
 
@@ -224,14 +227,14 @@ src/main/java/com/rentacar/
 
 ## Ortam Değişkenleri
 
-| Anahtar | Varsayılan | Açıklama |
-|---------|------------|----------|
-| `server.port` | `8080` | API portu |
-| `spring.datasource.url` | `jdbc:postgresql://localhost:5432/rentacar` | PostgreSQL bağlantı URL'i |
-| `spring.datasource.username` | — | Veritabanı kullanıcı adı |
-| `spring.datasource.password` | — | Veritabanı şifresi |
-| `jwt.secret` | — | JWT imzalama anahtarı |
-| `jwt.expiration-ms` | `36000000` | Token geçerlilik süresi (ms) |
+| Değişken | Varsayılan | Açıklama |
+|----------|------------|----------|
+| `DB_URL` | — | PostgreSQL bağlantı URL'i |
+| `DB_USERNAME` | — | Veritabanı kullanıcı adı |
+| `DB_PASSWORD` | — | Veritabanı şifresi |
+| `JWT_SECRET` | — | JWT imzalama anahtarı (en az 256 bit, `openssl rand -base64 32`) |
+| `JWT_EXPIRATION_MS` | `36000000` | Token geçerlilik süresi (ms) |
+| `SPRING_PROFILES_ACTIVE` | `dev` | `dev`: ddl-auto=update, `prod`: ddl-auto=validate |
 
 ---
 

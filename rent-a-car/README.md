@@ -55,10 +55,17 @@ npm install
 ```
 
 3. **Çevre değişkenlerini ayarlayın**
-   `.env.development` veya `.env.local` dosyası oluşturun:
+
+Geliştirme (`.env.development`):
 
 ```env
 VITE_API_URL=http://localhost:8080
+```
+
+Production build (`.env.production` — gerçek API domain'inizle güncelleyin):
+
+```env
+VITE_API_URL=https://api.rentacar.com
 ```
 
 4. **Uygulamayı başlatın**

@@ -6,7 +6,6 @@ export type AppUser = {
 };
 
 export type AuthSession = {
-  access_token: string;
   user: AppUser;
 };
 

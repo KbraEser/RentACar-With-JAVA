@@ -1,6 +1,8 @@
 package com.rentacar.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,10 +10,18 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private final Environment environment;
+
+    @Autowired
+    public GlobalExceptionHandler(Environment environment) {
+        this.environment = environment;
+    }
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ExceptionResponse> handleApiException(ApiException exception) {
@@ -46,12 +56,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleGeneralException(Exception exception) {
         log.error("Beklenmeyen hata", exception);
 
+        String clientMessage = isProductionProfile()
+                ? "Beklenmeyen bir hata oluştu"
+                : exception.getMessage();
+
         ExceptionResponse response = new ExceptionResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                exception.getMessage(),
+                clientMessage,
                 LocalDateTime.now()
         );
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private boolean isProductionProfile() {
+        return Arrays.stream(environment.getActiveProfiles())
+                .anyMatch(profile -> profile.equalsIgnoreCase("prod"));
     }
 }

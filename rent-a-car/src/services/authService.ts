@@ -1,13 +1,6 @@
-import {
-  apiClient,
-  clearToken,
-  getToken,
-  setToken,
-} from "../lib/apiClient";
+import { apiClient } from "../lib/apiClient";
 import type { AppUser, AuthResponse, AuthSession } from "../types/auth";
 import { getApiErrorMessage, validateInput } from "../utils/errorHandler";
-
-const USER_KEY = "auth_user";
 
 export interface SignUpData {
   email: string;
@@ -22,32 +15,24 @@ export interface SignInData {
   password: string;
 }
 
-interface LoginResponse {
-  jwtToken: string;
+interface UserProfileResponse {
   userId: number;
   email: string;
   name: string;
   surname: string;
 }
 
-const saveAuth = (token: string, user: AppUser): AuthResponse => {
-  setToken(token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+const toAppUser = (profile: UserProfileResponse): AppUser => ({
+  id: profile.userId,
+  email: profile.email,
+  name: profile.name,
+  surname: profile.surname,
+});
 
-  const session: AuthSession = { access_token: token, user };
-  return { user, session };
-};
-
-const getStoredUser = (): AppUser | null => {
-  const userJson = localStorage.getItem(USER_KEY);
-  if (!userJson) return null;
-
-  try {
-    return JSON.parse(userJson) as AppUser;
-  } catch {
-    return null;
-  }
-};
+const toAuthResponse = (user: AppUser): AuthResponse => ({
+  user,
+  session: { user },
+});
 
 export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
   validateInput(data.email, "Email");
@@ -68,7 +53,6 @@ export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
     throw new Error(getApiErrorMessage(error, "AuthService.signUp"));
   }
 
-  // Backend kayıtta token dönmüyor; kullanıcı login sayfasına gider
   return { user: null, session: null };
 };
 
@@ -77,7 +61,7 @@ export const signIn = async (data: SignInData): Promise<AuthResponse> => {
   validateInput(data.password, "Şifre");
 
   try {
-    const { data: loginData } = await apiClient.post<LoginResponse>(
+    const { data: profile } = await apiClient.post<UserProfileResponse>(
       "/auth/login",
       {
         email: data.email,
@@ -85,33 +69,27 @@ export const signIn = async (data: SignInData): Promise<AuthResponse> => {
       }
     );
 
-    const user: AppUser = {
-      id: loginData.userId,
-      email: loginData.email,
-      name: loginData.name,
-      surname: loginData.surname,
-    };
-
-    return saveAuth(loginData.jwtToken, user);
+    return toAuthResponse(toAppUser(profile));
   } catch (error) {
     throw new Error(getApiErrorMessage(error, "AuthService.signIn"));
   }
 };
 
 export const signOut = async (): Promise<void> => {
-  clearToken();
-  localStorage.removeItem(USER_KEY);
+  try {
+    await apiClient.post("/auth/logout");
+  } catch {
+    // Cookie temizliği backend'de; istemci state'i yine de sıfırlanır
+  }
 };
 
 export const getSession = async (): Promise<{ session: AuthSession | null }> => {
-  const token = getToken();
-  const user = getStoredUser();
-
-  if (!token || !user) {
+  try {
+    const { data: profile } = await apiClient.get<UserProfileResponse>("/auth/me");
+    return { session: { user: toAppUser(profile) } };
+  } catch {
     return { session: null };
   }
-
-  return { session: { access_token: token, user } };
 };
 
 export const getUser = async (): Promise<AppUser | null> => {
