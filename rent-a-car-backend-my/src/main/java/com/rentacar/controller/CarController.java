@@ -1,8 +1,10 @@
 package com.rentacar.controller;
 
-import com.rentacar.dto.CarResponse;
 import com.rentacar.dto.CarMapper;
+import com.rentacar.dto.CarResponse;
+import com.rentacar.dto.CarUpdateRequest;
 import com.rentacar.service.CarService;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +34,11 @@ public class CarController {
     @GetMapping("/{id}")
     public CarResponse findById(@PathVariable Long id) {
         return CarMapper.toResponse(carService.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    public CarResponse update(@PathVariable Long id, @Valid @RequestBody CarUpdateRequest request) {
+        return CarMapper.toResponse(carService.update(id, request));
     }
 
     @GetMapping("/filter")

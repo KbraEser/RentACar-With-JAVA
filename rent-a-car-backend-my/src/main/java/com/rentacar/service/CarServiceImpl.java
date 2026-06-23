@@ -8,6 +8,7 @@ import com.rentacar.repository.CarRepository;
 import com.rentacar.repository.RentalRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.rentacar.dto.CarUpdateRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,25 @@ public class CarServiceImpl implements CarService {
     public Car findById(Long id) {
         return carRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Araç bulunamadı: " + id, HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    @Transactional
+    public Car update(Long id, CarUpdateRequest request) {
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new ApiException("Araç bulunamadı: " + id, HttpStatus.NOT_FOUND));
+
+        if (request.pricePerDay() != null) {
+            car.setPricePerDay(request.pricePerDay());
+        }
+        if (request.isAvailable() != null) {
+            car.setAvailable(request.isAvailable());
+        }
+        if (request.isFeatured() != null) {
+            car.setFeatured(request.isFeatured());
+        }
+
+        return carRepository.save(car);
     }
 
     @Override

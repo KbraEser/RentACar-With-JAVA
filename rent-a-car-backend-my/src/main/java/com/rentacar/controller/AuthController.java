@@ -8,6 +8,7 @@ import com.rentacar.dto.UserProfileResponse;
 import com.rentacar.entity.User;
 import com.rentacar.exceptions.ApiException;
 import com.rentacar.repository.UserRepository;
+import com.rentacar.redis.LoginRateLimiter;
 import com.rentacar.service.AuthenticationService;
 import com.rentacar.service.UserService;
 import com.rentacar.utils.JwtUtil;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,6 +38,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final AuthCookieService authCookieService;
+    private final LoginRateLimiter loginRateLimiter;
 
     public AuthController(
             AuthenticationManager authenticationManager,
@@ -43,7 +46,8 @@ public class AuthController {
             UserService userService,
             UserRepository userRepository,
             JwtUtil jwtUtil,
-            AuthCookieService authCookieService
+            AuthCookieService authCookieService,
+            LoginRateLimiter loginRateLimiter
     ) {
         this.authenticationManager = authenticationManager;
         this.authenticationService = authenticationService;
@@ -51,6 +55,7 @@ public class AuthController {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.authCookieService = authCookieService;
+        this.loginRateLimiter = loginRateLimiter;
     }
 
     @PostMapping("/register")
@@ -64,9 +69,23 @@ public class AuthController {
             @Valid @RequestBody LoginRequest loginRequest,
             HttpServletResponse response
     ) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
-        );
+        if (loginRateLimiter.isBlocked(loginRequest.getEmail())) {
+            throw new ApiException(
+                    "Çok fazla başarısız giriş denemesi. Lütfen daha sonra tekrar deneyin.",
+                    HttpStatus.TOO_MANY_REQUESTS
+            );
+        }
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
+        } catch (AuthenticationException ex) {
+            loginRateLimiter.recordFailedAttempt(loginRequest.getEmail());
+            throw new ApiException("Geçersiz email veya şifre", HttpStatus.UNAUTHORIZED);
+        }
+
+        loginRateLimiter.clearAttempts(loginRequest.getEmail());
 
         UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
         User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow();

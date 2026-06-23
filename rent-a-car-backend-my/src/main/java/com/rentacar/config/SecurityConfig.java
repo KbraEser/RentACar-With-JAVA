@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login", "/auth/refresh", "/auth/logout", "/auth/me").permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/cars/**").authenticated()
                         .requestMatchers("/rentals/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )

@@ -1,5 +1,6 @@
 package com.rentacar.service;
 
+import com.rentacar.dto.CarUpdateRequest;
 import com.rentacar.entity.Car;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -13,6 +14,8 @@ public interface CarService {
     List<Car> findFeatured();
 
     Car findById(Long id);
+
+    Car update(Long id, CarUpdateRequest request);
 
     List<Car> findFiltered(
                            LocalDate startDate,
